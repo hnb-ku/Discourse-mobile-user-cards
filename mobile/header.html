@@ -1,0 +1,101 @@
+<script type="text/discourse-plugin" version="0.8">
+const cardContentBase = require("discourse/mixins/card-contents-base").default;
+
+cardContentBase.reopen({
+  _show(username, $target) {
+    if (this.siteSettings.hide_user_profiles_from_public && !this.currentUser) {
+      return false;
+    }
+
+    username = Ember.Handlebars.Utils.escapeExpression(username.toString());
+
+    if ($target.parents(".card-content").length) {
+      this._close();
+      DiscourseURL.routeTo($target.attr("href"));
+      return false;
+    }
+
+    const currentUsername = this.get("username");
+    if (username === currentUsername && this.get("loading") === username) {
+      return;
+    }
+
+    const postId = $target.parents("article").data("post-id");
+    const wasVisible = this.get("visible");
+    const previousTarget = this.get("cardTarget");
+    const target = $target[0];
+
+    if (wasVisible) {
+      this._close();
+      if (target === previousTarget) {
+        return;
+      }
+    }
+
+    const post =
+      this.get("viewingTopic") && postId
+        ? this.get("postStream").findLoadedPost(postId)
+        : null;
+    this.setProperties({
+      username,
+      loading: username,
+      cardTarget: target,
+      post
+    });
+
+    this._showCallback(username, $target);
+
+    return false;
+  }
+});
+
+</script>
+  
+<script type="text/x-handlebars" data-template-name="mobile/list/topic-list-item.raw">
+<td>
+  {{~#unless expandPinned}}
+  <div class='pull-left'>
+    <a href="{{topic.lastPostUrl}}" data-user-card="{{topic.last_poster_username}}">{{avatar topic.lastPoster usernamePath="username" imageSize="large"}}</a>
+  </div>
+  <div class='right'>
+  {{else}}
+  <div>
+  {{/unless~}}
+    <div class='main-link'>
+      {{~raw "topic-status" topic=topic~}}
+      {{~topic-link topic~}}
+      {{~#if topic.featured_link~}}
+        {{~topic-featured-link topic~}}
+      {{~/if~}}
+      {{~#if topic.unseen~}}
+        &nbsp;<span class="badge-notification new-topic"></span>
+      {{~/if~}}
+      {{~#if expandPinned~}}
+      {{~raw "list/topic-excerpt" topic=topic~}}
+      {{~/if~}}
+    </div>
+
+    <div class='pull-right'>
+      {{raw "list/post-count-or-badges" topic=topic postBadgesEnabled=showTopicPostBadges}}
+    </div>
+
+    <div class="topic-item-stats clearfix">
+      {{#unless hideCategory}}
+        <div class='category'>
+          {{category-link topic.category}}
+        </div>
+      {{/unless}}
+
+      {{discourse-tags topic mode="list"}}
+
+      <div class="pull-right">
+        <div class='num activity last'>
+          <span class="age activity" title="{{topic.bumpedAtTitle}}"><a href="{{topic.lastPostUrl}}">{{format-date topic.bumpedAt format="tiny" noTitle="true"}}</a></span>
+        </div>
+      </div>
+
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</td>
+</script>
