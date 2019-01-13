@@ -146,6 +146,11 @@
       a {
         color: scale-color($primary, $lightness: 35%);
       }
+      &[title] {
+        span:not([class]) {
+          display: none;
+        }
+      }
     }
     div {
       display: inline;
