@@ -2,5 +2,6 @@
   "name": "Mobile User Cards",
   "about_url": "",
   "component": true,
-  "license_url": "https://github.com/hnb-ku/Discourse-mobile-user-cards/blob/master/LICENSE"
+  "license_url": "https://github.com/hnb-ku/Discourse-mobile-user-cards/blob/master/LICENSE",
+  "maximum_discourse_version": "2.3.0.beta5"
 }
